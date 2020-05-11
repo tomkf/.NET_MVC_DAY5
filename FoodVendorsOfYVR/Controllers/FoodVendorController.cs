@@ -15,7 +15,7 @@ namespace FoodVendorsOfYVR.Controllers
     public class FoodVendorController : Controller
     {
         [HttpGet("[action]")]
-        public IEnumerable<FoodVendor> FoodVendors()
+        public IEnumerable<FoodVendor> FoodVendors(string search)
         {
             const string URL = "https://opendata.vancouver.ca/api/records/1.0/search/?dataset=food-vendors&rows=1000";
             string json = CallRestMethod(new Uri(URL));
@@ -38,6 +38,11 @@ namespace FoodVendorsOfYVR.Controllers
         public IActionResult index(FoodVendor foodVendor)
         {
             return View();
+        }
+
+        [HttpPost("[action]")]
+        public void FoodVendor([FromBody] FoodVendor food_vendor)
+        {
         }
 
         static string CallRestMethod(Uri uri)

@@ -1,88 +1,73 @@
 import React, { Component } from 'react';
+import { GoogleMap, withScriptjs, withGoogleMap, Marker } from "react-google-maps";
+import APIResults from './APIResults';
+
+function Map(props) {
+    return (
+        <GoogleMap
+            defaultZoom={15}
+            defaultCenter={{ lat: 49.2820, lng: -123.1171 }} >
+            {props.foodVendors.map(
+                vendor => (
+                    <Marker
+                        key={vendor.key}
+                        title={vendor.business_name}
+                        position={{ lat: vendor.latitude, lng: vendor.longitude }}
+                        onClick={() => props.markerClickHandler(vendor)} />
+                )
+            )}
+        </GoogleMap>
+    );
+}
+
+
+// withScript basically adds the required js to embed map in page
+
+// withGoogleMap(Map) pushes the result of the Map function above
+// into the embedded google map js container 
+const WrappedMap = withScriptjs(withGoogleMap(props => (Map(props))));
+
 
 export class FetchData extends Component {
   static displayName = FetchData.name;
 
   constructor (props) {
     super(props);
-      this.state = { foodVendors: [], loading: true };
-      this.onSortChange = this.onSortChange.bind(this);
+      this.state = {
+          foodVendors: [],
+          loading: true,
+      };
 
-      fetch('api/FoodVendor/FoodVendors')
-      .then(response => response.json())
-      .then(data => {
-        this.setState({ foodVendors: data, loading: false });
-      });
     }
 
-    onSortChange(sortParam) {
-        let sortedVendors;
-
-        if (sortParam === 'name') {
-            if (this.state.nameSort === 'asc') {
-                this.setState({ nameSort: 'desc', descriptionSort: 'asc' });
-                sortedVendors = this.state.foodVendors.sort(function (a, b) {
-                    return (a.business_name === null) - (b.business_name === null) || +(a.business_name > b.business_name) || -(a.business_name < b.business_name)
+    componentDidMount() {
+        fetch('api/FoodVendor/FoodVendors')
+            .then(response => response.json())
+            .then(data => {
+                this.setState({
+                    foodVendors: data,
+                    loading: false,
                 });
-            } else {
-                this.setState({ nameSort: 'asc', descriptionSort: 'asc' });
-                sortedVendors = this.state.foodVendors.sort(function (a, b) {
-                    return (a.business_name === null) - (b.business_name === null) || -(a.business_name > b.business_name) || +(a.business_name < b.business_name)
-                });
-            }
-        } else {
-            if (this.state.descriptionSort === 'asc') {
-                this.setState({ nameSort: 'asc', descriptionSort: 'desc' });
-                sortedVendors = this.state.foodVendors.sort(function (a, b) {
-                    return (a.description === null) - (b.description === null) || +(a.description > b.description) || -(a.description < b.description)
-                });
-            } else {
-                this.setState({ nameSort: 'asc', descriptionSort: 'asc' });
-                sortedVendors = this.state.foodVendors.sort(function (a, b) {
-                    return (a.description === null) - (b.description === null) || -(a.description > b.description) || +(a.description < b.description)
-                });
-            }
-        }
-
-        this.setState({ foodVendors: sortedVendors });
+            });
     }
 
-     renderFoodVendorsTable(foodVendors) {
-    return (
-      <table className='table table-striped'>
-        <thead>
-          <tr>
-            <th><a href="javascript:void(0);" onClick={() => this.onSortChange('name')}>Name (click to sort)</a></th>
-            <th><a href="javascript:void(0);" onClick={() => this.onSortChange('description')}>Description (click to sort)</a></th>
-            <th>Longitude</th>
-            <th>Latitude</th>
-          </tr>
-        </thead>
-        <tbody>
-                {foodVendors.map(vendor =>
-            <tr key={vendor.key}>
-              <td>{vendor.business_name}</td>
-              <td>{vendor.description}</td>
-              <td>{vendor.longitude}</td>
-              <td>{vendor.latitude}</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    );
-  }
 
   render () {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-        : this.renderFoodVendorsTable(this.state.foodVendors);
 
-    return (
-      <div>
-        <h1>Food Vendors of YVR:</h1>
-        <p>This component demonstrates fetching data from the .NET server.</p>
-        {contents}
-      </div>
-    );
+      return (
+          <div>
+              <h1>Food Vendors</h1>
+              <WrappedMap
+                  foodVendors={this.state.foodVendors}
+                  markerClickHandler={this.markerClickHandler}
+                  googleMapURL={`https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places&key=AIzaSyD-BBRfry246W98i9sHb-TnI6_FJqQ70vQ`}
+                  loadingElement={<div style={{ height: '100%' }} />}
+                  containerElement={<div style={{ height: '400px' }} />}
+                  mapElement={<div style={{ height: '100%' }} />}
+              />
+             {this.state.loading ? "" : <APIResults data={this.state.foodVendors} />} 
+          </div>
+      );
+
   }
 }
