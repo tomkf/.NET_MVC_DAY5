@@ -60,7 +60,7 @@ export class FetchData extends Component {
               <WrappedMap
                   foodVendors={this.state.foodVendors}
                   markerClickHandler={this.markerClickHandler}
-                  googleMapURL={`https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places&key=AIzaSyD-BBRfry246W98i9sHb-TnI6_FJqQ70vQ`}
+                  googleMapURL={`https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places&key=YOUR_API_KEY_HERE`}
                   loadingElement={<div style={{ height: '100%' }} />}
                   containerElement={<div style={{ height: '400px' }} />}
                   mapElement={<div style={{ height: '100%' }} />}
